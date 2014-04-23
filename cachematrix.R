@@ -1,46 +1,58 @@
-## Put comments here that give an overall description of what your
-## functions do
+## Logan J Travis
+## github.com/l0neJT
+## 2014-04-23
 
-## Write a short comment describing this function
+## 'makeCacheMatrix' and 'cacheSolve' simplify data management for
+## a primary matrix and its inversion by keeping both in memory,
+## limiting access through a list of control functions, and by checking
+## the cached matrices prior to solving for the inversion.
 
+
+## store and manage a matrix along with its inversion
+## keeps both in memory for retrieval without reprocessing
+## returns a list of control functions (e.g. get, set, clear, etc.)
+## NO DIRECT ACCESS to cached matrices
 makeCacheMatrix <- function(x = matrix()) {
-    invertX <- NULL
+    invX <- NULL
     
-    ##
+    ## store a new primary matrix and reset the inversion matrix
     set <- function(y) {
         x <<- y
-        invertX <<- NULL
+        invX <<- NULL
     }
     
-    ##
+    ## return the primary matrix
     get <- function() x
     
-    ##
+    ## reset both the primary and inversion matrices; for testing
     clear <- function() set(matrix())
     
-    ##
-    setInvert <- function() invertX <<- solve(x)
+    ## store the inverstion of matrix 'x' to 'invX'
+    ## calls 'solve' from the R base package
+    ## returns an error if no solution possible
+    solveInv <- function() invX <<- solve(x)
     
-    ##
-    getInvert <- function() invertX
+    ## return inversion matrix
+    getInv <- function() invX
     
-    ##
-    clearInvert <- function() invertX <<- NULL
+    ## reset inversion matrix to NULL; for testing
+    clearInv <- function() invX <<- NULL
     
-    ##
-    list(set = set, get = get, clear = clear, setInvert = setInvert,
-         getInvert = getInvert, clearInvert = clearInvert)
+    ## return the list of avaialble function calls
+    list(set = set, get = get, clear = clear, solveInv = solveInv,
+         getInv = getInv, clearInv = clearInv)
 }
 
 
-## Write a short comment describing this function
-
+## take a 'makeCacheMatrix' object and return the inversion matrix
+## checks memory for a non-NULL inversion matrix either returning the
+## stored matrix or - if NULL - solving first then returning the matrix
 cacheSolve <- function(x, ...) {
-    if(is.null(x$getInvert())){
-        message("creating inverse matrix")
-        x$setInvert()
+    if(is.null(x$getInv())){
+        message("solving inverse matrix")
+        x$solveInv()
     } else {
         message("retrieving from cache")
     }
-    x$getInvert()
+    x$getInv()
 }
